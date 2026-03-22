@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taiwan Live Map - Visit Ideas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --secondary: #2f3542;
+            --accent: #1e90ff;
+            --bg: #0f1116;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: white;
+            overflow: hidden;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+            z-index: 1;
+        }
+
+        /* Sidebar Overlay */
+        .overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 350px;
+            max-height: calc(100vh - 40px);
+            background: rgba(15, 17, 22, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 20px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #a4b0be;
+        }
+
+        .locations-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .location-item {
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .location-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .location-item.active {
+            border-left-color: var(--primary);
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        .location-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .location-item p {
+            margin: 0;
+            font-size: 13px;
+            color: #a4b0be;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .tag-taipei { background: #57606f; color: #fff; }
+        .tag-kaohsiung { background: #ffa502; color: #fff; }
+        .tag-alishan { background: #2ed573; color: #fff; }
+
+        /* Custom Popup Styles */
+        .leaflet-popup-content-wrapper {
+            background: var(--bg);
+            color: white;
+            border-radius: 12px;
+            border: 1px solid var(--glass);
+        }
+        .leaflet-popup-tip {
+            background: var(--bg);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass); border-radius: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <h1>\ud83c\uddf9\ud83c\uddfc Taiwan Live Map</h1>
+        <p style="font-size: 14px; color: #a4b0be; margin-top: -10px; margin-bottom: 20px;">Synchronis\u00e9 avec Notion "Id\u00e9es de visites"</p>
+        
+        <input type="text" class="search-box" placeholder="Rechercher un lieu..." id="search">
+        
+        <div class="stats">
+            <span id="count">18 lieux identifi\u00e9s</span>
+            <span>\ud83d\udccd Ta\u00efwan</span>
+        </div>
+
+        <div class="locations-list" id="list">
+            <!-- Items filled by JS -->
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""></script>
+    <script>
+        const locations = [
+            { name: "Alishan (for\u00eat + lever de soleil)", city: "Alishan", coords: [23.5167, 120.8000], desc: "For\u00eat de cypr\u00e8s mill\u00e9naires et train de montagne." },
+            { name: "Yancheng (rues historiques)", city: "Kaohsiung", coords: [22.6246, 120.2868], desc: "Vieux quartier portuaire avec art de rue et caf\u00e9s." },
+            { name: "Liuhe Night Market", city: "Kaohsiung", coords: [22.6330, 120.3022], desc: "March\u00e9 nocturne c\u00e9l\u00e8bre pour ses fruits de mer." },
+            { name: "Temple Guandu", city: "Ta\u00efpei", coords: [25.1178, 121.4637], desc: "Temple bouddhiste et tao\u00efste au bord de l'eau." },
+            { name: "Dalongdong Bao\u2019an temple", city: "Ta\u00efpei", coords: [25.0731, 121.5156], desc: "Chef-d'oeuvre architectural prim\u00e9 par l'UNESCO." },
+            { name: "Lungshan Temple", city: "Ta\u00efpei", coords: [25.0368, 121.4999], desc: "L'un des plus anciens et anim\u00e9s de Ta\u00efpei." },
+            { name: "Ximending (pop culture)", city: "Ta\u00efpei", coords: [25.0428, 121.5075], desc: "Quartier jeune, mode et culture otaku." },
+            { name: "Elephant Mountain (Xiangshan)", city: "Ta\u00efpei", coords: [25.0267, 121.5759], desc: "Meilleure vue sur Ta\u00efpei 101 au coucher du soleil." },
+            { name: "Taipei 101", city: "Ta\u00efpei", coords: [25.0337, 121.5647], desc: "L'embl\u00e8me de Ta\u00efwan, observatoire spectaculaire." },
+            { name: "Fo Guang Shan Monastery", city: "Kaohsiung", coords: [22.7571, 120.4414], desc: "Plus grand monast\u00e8re bouddhiste de l'\u00eele." },
+            { name: "Dihua Street", city: "Ta\u00efpei", coords: [25.0666, 121.5099], desc: "Rues marchandes traditionnelles et caf\u00e9s d'art." },
+            { name: "Ruifeng Night Market", city: "Kaohsiung", coords: [22.6662, 120.2997], desc: "Le march\u00e9 nocturne pr\u00e9f\u00e9r\u00e9 des locaux \u00e0 Kaohsiung." },
+            { name: "Shoushan Monkey Mountain", city: "Kaohsiung", coords: [22.6420, 120.2656], desc: "Randonn\u00e9e avec macaques sauvages et vue sur mer." },
+            { name: "Yehliu Geopark", city: "Ta\u00efpei", coords: [25.2128, 121.6975], desc: "Formations rocheuses insolites sculpt\u00e9es par la mer." },
+            { name: "Yonghe Baofu Temple", city: "Ta\u00efpei", coords: [25.0075, 121.5164], desc: "D\u00e9tails minutieux et atmosph\u00e8re mystique." },
+            { name: "Paradise ToyLand", city: "Ta\u00efpei", coords: [25.0417, 121.5544], desc: "Le paradis des figurines et Art Toys \u00e0 Dunhua." },
+            { name: "Hot Dog Toyz", city: "Ta\u00efpei", coords: [25.0425, 121.5516], desc: "Boutique culte pour les collectionneurs de Bearbricks." },
+            { name: "Gundam Base Taiwan", city: "Ta\u00efpei", coords: [25.0453, 121.5310], desc: "Store officiel Bandai au Syntrend Creative Park." }
+        ];
+
+        // Custom Markers
+        const colorMap = {
+            "Ta\u00efpei": "#57606f",
+            "Kaohsiung": "#ffa502",
+            "Alishan": "#2ed573"
+        };
+
+        // Initialize Map
+        const map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([23.9739, 120.9796], 8);
+
+        // Dark Mode Tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        const markers = [];
+
+        function initMap() {
+            const listContainer = document.getElementById('list');
+            
+            locations.forEach((loc, index) => {
+                const marker = L.circleMarker(loc.coords, {
+                    radius: 8,
+                    fillColor: colorMap[loc.city] || "#ff4757",
+                    color: "#fff",
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div style="font-family: 'Outfit', sans-serif;">
+                        <strong style="font-size: 16px;">${loc.name}</strong><br>
+                        <span style="color: #a4b0be; font-size: 12px; display: block; margin-top: 5px;">${loc.desc}</span>
+                    </div>
+                `);
+
+                markers.push(marker);
+
+                // Add to list
+                const item = document.createElement('div');
+                item.className = 'location-item';
+                item.innerHTML = `
+                    <h3>${loc.name}</h3>
+                    <p>${loc.desc}</p>
+                    <span class="tag tag-${loc.city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${loc.city}</span>
+                `;
+                item.onclick = () => {
+                    map.flyTo(loc.coords, 14);
+                    marker.openPopup();
+                };
+                listContainer.appendChild(item);
+            });
+        }
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.location-item');
+            let count = 0;
+            
+            items.forEach((item, index) => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(val)) {
+                    item.style.display = 'block';
+                    count++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            document.getElementById('count').innerText = `${count} lieux trouv\u00e9s`;
+        });
+
+        initMap();
+
+    </script>
+</body>
+</html>
