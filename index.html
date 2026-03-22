@@ -1,275 +1,36 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taiwan Live Map - Visit Ideas</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Taiwan Live Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #ff4757;
-            --secondary: #2f3542;
-            --accent: #1e90ff;
-            --bg: #0f1116;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg);
-            color: white;
-            overflow: hidden;
-        }
-
-        #map {
-            height: 100vh;
-            width: 100%;
-            z-index: 1;
-        }
-
-        /* Sidebar Overlay */
-        .overlay {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            width: 350px;
-            max-height: calc(100vh - 40px);
-            background: rgba(15, 17, 22, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }
-
-        h1 {
-            margin: 0 0 15px 0;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--glass);
-            border-radius: 12px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            margin-bottom: 20px;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #a4b0be;
-        }
-
-        .locations-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .location-item {
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .location-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
-
-        .location-item.active {
-            border-left-color: var(--primary);
-            background: rgba(255, 71, 87, 0.1);
-        }
-
-        .location-item h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-        }
-
-        .location-item p {
-            margin: 0;
-            font-size: 13px;
-            color: #a4b0be;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-
-        .tag-taipei { background: #57606f; color: #fff; }
-        .tag-kaohsiung { background: #ffa502; color: #fff; }
-        .tag-alishan { background: #2ed573; color: #fff; }
-
-        /* Custom Popup Styles */
-        .leaflet-popup-content-wrapper {
-            background: var(--bg);
-            color: white;
-            border-radius: 12px;
-            border: 1px solid var(--glass);
-        }
-        .leaflet-popup-tip {
-            background: var(--bg);
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--glass); border-radius: 10px; }
-
-    </style>
-</head>
-<body>
-
-    <div class="overlay">
-        <h1>\ud83c\uddf9\ud83c\uddfc Taiwan Live Map</h1>
-        <p style="font-size: 14px; color: #a4b0be; margin-top: -10px; margin-bottom: 20px;">Synchronis\u00e9 avec Notion "Id\u00e9es de visites"</p>
-        
-        <input type="text" class="search-box" placeholder="Rechercher un lieu..." id="search">
-        
-        <div class="stats">
-            <span id="count">18 lieux identifi\u00e9s</span>
-            <span>\ud83d\udccd Ta\u00efwan</span>
-        </div>
-
-        <div class="locations-list" id="list">
-            <!-- Items filled by JS -->
-        </div>
-    </div>
-
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""></script>
+        :root { --p: #ff4757; --bg: #0f1116; --g: rgba(255, 255, 255, 0.1); }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Outfit'; background: var(--bg); color: white; overflow: hidden; }
+        #map { height: 100vh; width: 100%; z-index: 1; }
+        .overlay { position: absolute; top: 15px; left: 15px; z-index: 1000; width: 280px; max-height: calc(100vh - 30px); background: rgba(15,17,22,0.9); backdrop-filter: blur(10px); border-radius: 15px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { margin: 0; font-size: 18px; color: var(--p); }
+        .search { width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--g); border-radius: 8px; color: white; margin: 10px 0; outline: none; }
+        .list { flex-grow: 1; overflow-y: auto; }
+        .item { padding: 8px; border-bottom: 1px solid var(--g); cursor: pointer; }
+        .tag { display: inline-block; padding: 2px 5px; font-size: 9px; background: #57606f; border-radius: 4px; margin-top: 3px; }
+        .tag-taipei { background: #57606f; } .tag-kaohsiung { background: #ffa502; }
+    </style></head>
+    <body><div class="overlay"><h1>Taiwan Travel Map</h1><p style="font-size: 10px; color: #aaa;">MAJ : 15:27</p>
+    <input type="text" class="search" placeholder="Filtrer..." id="s"><div class="list" id="l"></div></div><div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const locations = [
-            { name: "Alishan (for\u00eat + lever de soleil)", city: "Alishan", coords: [23.5167, 120.8000], desc: "For\u00eat de cypr\u00e8s mill\u00e9naires et train de montagne." },
-            { name: "Yancheng (rues historiques)", city: "Kaohsiung", coords: [22.6246, 120.2868], desc: "Vieux quartier portuaire avec art de rue et caf\u00e9s." },
-            { name: "Liuhe Night Market", city: "Kaohsiung", coords: [22.6330, 120.3022], desc: "March\u00e9 nocturne c\u00e9l\u00e8bre pour ses fruits de mer." },
-            { name: "Temple Guandu", city: "Ta\u00efpei", coords: [25.1178, 121.4637], desc: "Temple bouddhiste et tao\u00efste au bord de l'eau." },
-            { name: "Dalongdong Bao\u2019an temple", city: "Ta\u00efpei", coords: [25.0731, 121.5156], desc: "Chef-d'oeuvre architectural prim\u00e9 par l'UNESCO." },
-            { name: "Lungshan Temple", city: "Ta\u00efpei", coords: [25.0368, 121.4999], desc: "L'un des plus anciens et anim\u00e9s de Ta\u00efpei." },
-            { name: "Ximending (pop culture)", city: "Ta\u00efpei", coords: [25.0428, 121.5075], desc: "Quartier jeune, mode et culture otaku." },
-            { name: "Elephant Mountain (Xiangshan)", city: "Ta\u00efpei", coords: [25.0267, 121.5759], desc: "Meilleure vue sur Ta\u00efpei 101 au coucher du soleil." },
-            { name: "Taipei 101", city: "Ta\u00efpei", coords: [25.0337, 121.5647], desc: "L'embl\u00e8me de Ta\u00efwan, observatoire spectaculaire." },
-            { name: "Fo Guang Shan Monastery", city: "Kaohsiung", coords: [22.7571, 120.4414], desc: "Plus grand monast\u00e8re bouddhiste de l'\u00eele." },
-            { name: "Dihua Street", city: "Ta\u00efpei", coords: [25.0666, 121.5099], desc: "Rues marchandes traditionnelles et caf\u00e9s d'art." },
-            { name: "Ruifeng Night Market", city: "Kaohsiung", coords: [22.6662, 120.2997], desc: "Le march\u00e9 nocturne pr\u00e9f\u00e9r\u00e9 des locaux \u00e0 Kaohsiung." },
-            { name: "Shoushan Monkey Mountain", city: "Kaohsiung", coords: [22.6420, 120.2656], desc: "Randonn\u00e9e avec macaques sauvages et vue sur mer." },
-            { name: "Yehliu Geopark", city: "Ta\u00efpei", coords: [25.2128, 121.6975], desc: "Formations rocheuses insolites sculpt\u00e9es par la mer." },
-            { name: "Yonghe Baofu Temple", city: "Ta\u00efpei", coords: [25.0075, 121.5164], desc: "D\u00e9tails minutieux et atmosph\u00e8re mystique." },
-            { name: "Paradise ToyLand", city: "Ta\u00efpei", coords: [25.0417, 121.5544], desc: "Le paradis des figurines et Art Toys \u00e0 Dunhua." },
-            { name: "Hot Dog Toyz", city: "Ta\u00efpei", coords: [25.0425, 121.5516], desc: "Boutique culte pour les collectionneurs de Bearbricks." },
-            { name: "Gundam Base Taiwan", city: "Ta\u00efpei", coords: [25.0453, 121.5310], desc: "Store officiel Bandai au Syntrend Creative Park." }
-        ];
-
-        // Custom Markers
-        const colorMap = {
-            "Ta\u00efpei": "#57606f",
-            "Kaohsiung": "#ffa502",
-            "Alishan": "#2ed573"
-        };
-
-        // Initialize Map
-        const map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([23.9739, 120.9796], 8);
-
-        // Dark Mode Tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
-        }).addTo(map);
-
-        const markers = [];
-
-        function initMap() {
-            const listContainer = document.getElementById('list');
-            
-            locations.forEach((loc, index) => {
-                const marker = L.circleMarker(loc.coords, {
-                    radius: 8,
-                    fillColor: colorMap[loc.city] || "#ff4757",
-                    color: "#fff",
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(map);
-
-                marker.bindPopup(`
-                    <div style="font-family: 'Outfit', sans-serif;">
-                        <strong style="font-size: 16px;">${loc.name}</strong><br>
-                        <span style="color: #a4b0be; font-size: 12px; display: block; margin-top: 5px;">${loc.desc}</span>
-                    </div>
-                `);
-
-                markers.push(marker);
-
-                // Add to list
-                const item = document.createElement('div');
-                item.className = 'location-item';
-                item.innerHTML = `
-                    <h3>${loc.name}</h3>
-                    <p>${loc.desc}</p>
-                    <span class="tag tag-${loc.city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${loc.city}</span>
-                `;
-                item.onclick = () => {
-                    map.flyTo(loc.coords, 14);
-                    marker.openPopup();
-                };
-                listContainer.appendChild(item);
-            });
-        }
-
-        document.getElementById('search').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            const items = document.querySelectorAll('.location-item');
-            let count = 0;
-            
-            items.forEach((item, index) => {
-                const text = item.innerText.toLowerCase();
-                if (text.includes(val)) {
-                    item.style.display = 'block';
-                    count++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-            document.getElementById('count').innerText = `${count} lieux trouv\u00e9s`;
+        const color = { "Taïpei": "#57606f", "Kaohsiung": "#ffa502", "Alishan": "#2ed573" };
+        const map = L.map('map', {attributionControl: false, zoomControl: false}).setView([23.9, 120.9], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        const data = [{"name": "Ximending (quartier otaku & pop culture)", "city": "Taïpei", "coords": [25.042797860244, 121.507694693984], "desc": "Ximending est le quartier jeune et branché de Taipei, souvent comparé à Shibuya ou Akihabara au Japon. C’est le lieu idéal pour la mode, la culture po"}, {"name": "Sun Moon Lake (balade en vélo autour du lac)", "city": "Taïwan", "coords": [23.851780380985, 120.902166394937], "desc": "Sun Moon Lake est le plus grand lac naturel de Taïwan, situé au cœur de l'île, entouré de montagnes luxuriantes. Son nom provient de sa forme particul"}, {"name": "[Alishan] Alishan (forêt + lever de soleil)", "city": "Alishan", "coords": [23.449635, 120.7852706], "desc": "Alishan est un lieu magique pour les amoureux de nature, de tranquillité et de paysages spectaculaires. Perché dans les montagnes du comté de Chiayi, "}, {"name": "Dragon & Tiger Pagodas (Kaohsiung, Lotus Pond", "city": "Kaohsiung", "coords": [22.680888982807, 120.291240988435], "desc": "Les Dragon & Tiger Pagodas sont deux pagodes jumelles de sept étages situées sur les rives du Lotus Pond, dans le district de Zuoying à Kaohsiung. On "}, {"name": "Beitou – Sources d’eau chaude & Musée", "city": "Taïwan", "coords": [25.137279403447, 121.508617198987], "desc": "Beitou est une zone thermale célèbre à Taipei, connue pour ses sources chaudes naturelles, ses bains publics traditionnels et ses eaux riches en minér"}, {"name": "Pêche aux crevettes en intérieur", "city": "Taïpei", "coords": [25.072348031313, 121.54642606072], "desc": "La pêche aux crevettes en intérieur est une activité typiquement taïwanaise et insolite. Dans de grands bassins aménagés, on loue une canne à pêche et"}, {"name": "[Kaohsiung] Fo Guang Shan Monastery", "city": "Kaohsiung", "coords": [22.747269004, 120.446283985137], "desc": "Fo Guang Shan est le plus grand monastère bouddhiste de Taïwan, dans le district de Dashu près de Kaohsiung. Fondé en 1967, il sert de siège à l’ordre"}, {"name": "Taroko Gorge (Taroko National Park)", "city": "Taïwan", "coords": [24.1591, 121.62141], "desc": "ATTENTION FERME DEPUIS FIN 2025 SUITE TREMBLEMENT DE TERRE\n\nTaroko Gorge est l’un des joyaux naturels de Taïwan : un canyon de marbre impressionnant s"}, {"name": "[Taïpei] Elephant Mountain (Xiangshan)", "city": "Taïpei", "coords": [25.0331314, 121.5677202], "desc": "Elephant Mountain (Xiangshan) est l’un des sentiers les plus accessibles pour obtenir une vue spectaculaire sur Taipei, notamment sur le Taipei 101 et"}, {"name": "[Taïpei] Taipei 101", "city": "Taïpei", "coords": [25.03352416448, 121.56460396087], "desc": "Taipei 101 est le gratte-ciel le plus emblématique de Taïwan. Avec ses 508 mètres de haut et 101 étages, il fut le plus haut bâtiment du monde de 2004"}, {"name": "[Taïpei] Pingxi (Old Street)", "city": "Taïpei", "coords": [25.024799986288, 121.73862802877], "desc": "Pingxi est une petite ville dans le nord de Taïwan réputée pour ses ruelles anciennes, ses maisons en bois datant de l’époque coloniale japonaise, et "}, {"name": "[Taïpei] Jiufen (village aux lanternes)", "city": "Taïpei", "coords": [25.107210386035, 121.84241044097], "desc": "Jiufen est un village pittoresque perché dans les collines du nord de Taïwan, non loin de la côte. Il est célèbre pour ses ruelles étroites pavées, se"}, {"name": "[Taïpei] Marché de nuit (Shilin / Raohe)", "city": "Taïpei", "coords": [25.087957752444, 121.524165888095], "desc": "Les marchés de nuit de Taipei sont une expérience culinaire et culturelle unique. Shilin est le plus grand, avec une infinité de stands de street food"}, {"name": "[Taïpei] Shifen Old Street", "city": "Taïpei", "coords": [25.042416986563, 121.776265959151], "desc": "Shifen Old Street est un lieu emblématique du Pingxi Line : une rue historique où le chemin de fer passe à travers le village, entourée de magasins de"}, {"name": "Lungshan Temple", "city": "Taïpei", "coords": [25.036778564116, 121.499935482396], "desc": "Le Lungshan Temple, aussi appelé Mengjia Lungshan, est l’un des temples les plus anciens et les plus emblématiques de Taipei. Fondé en 1738 par des mi"}, {"name": "Otherworld ", "city": "Taïwan", "coords": [23.590930913777, 120.526042546211], "desc": "Situé dans le canton de Dalin, dans le comté de Chiayi, le Château de Rêve d'Olevoo est un parc à thème immersif alliant architecture, sculpture et cu"}, {"name": "Yonghe Baofu Temple", "city": "Taïpei", "coords": [25.012931001844, 121.508783000293], "desc": "Le Yonghe Baofu Temple (永和保福宮) est un temple local discret mais très significatif, situé en plein cœur d’un quartier urbain dense, entouré de bâtiment"}, {"name": "[Taïpei] Yehliu Geopark", "city": "Taïpei", "coords": [25.205437082427, 121.690023300094], "desc": "Yehliu est une péninsule située dans le district de Wanli, au nord de Taïwan, célèbre pour son geoparc côtier aux formations rocheuses spectaculaires."}, {"name": "[Kaohsiung] Yancheng (rues historiques)", "city": "Kaohsiung", "coords": [22.6252073, 120.2835772], "desc": "Yancheng est l’un des quartiers historiques de Kaohsiung, situé près du port et de la Love River. Ancien centre commercial et culturel de la ville ava"}, {"name": "Dihua Street", "city": "Taïpei", "coords": [25.061950488514, 121.50920000325], "desc": "Dihua Street est l’axe historique du quartier de Dadaocheng, ancien cœur commercial de Taipei aux XIXᵉ et début XXᵉ siècles. Longue rue bordée d’entre"}, {"name": "[Kaohsiung] Shoushan Monkey Mountain", "city": "Kaohsiung", "coords": [22.655797420375, 120.27492770938], "desc": "Shoushan Monkey Mountain, ou Shoushan National Nature Park est une montagne en pleine ville qui abrite une forêt subtropicale sèche unique, couvrant e"}, {"name": "[Kaohsiung] Ruifeng Night Market", "city": "Kaohsiung", "coords": [22.665620319274, 120.305953880631], "desc": "Le Ruifeng Night Market est un marché de nuit très populaire situé dans le district de Zuoying, à Kaohsiung. Réputé pour son ambiance animée et sa gra"}, {"name": "Jiaoxi - Ville sources eau chaude", "city": "Taïwan", "coords": [24.8125615, 121.7395053], "desc": "Jiaoxi est une petite ville thermale située dans le comté de Yilan, réputée pour ses sources d’eau chaude naturelles accessibles directement en ville."}, {"name": "[Taïpei] Dalongdong Bao’an temple", "city": "Taïpei", "coords": [25.073105690569, 121.515553482583], "desc": "Le Dalongdong Bao’an Temple est l’un des temples les plus raffinés et artistiquement remarquables de Taipei. Fondé au début du XIXᵉ siècle par des mig"}, {"name": "[Kaohsiung] Luhe Night Market", "city": "Kaohsiung", "coords": [22.632477992868, 120.3003315724], "desc": "Liuhe Night Market est l’un des marchés de nuit les plus connus de Kaohsiung, situé en plein centre-ville. Plus organisé et linéaire que d’autres marc"}, {"name": "[Taïpei] Hot Dog Toyz", "city": "Taïpei", "coords": [25.042355418021, 121.549581458945], "desc": "Art Toys ( Bearbricks)"}, {"name": "[Taïpei] Paradise ToyLand", "city": "Taïpei", "coords": [25.043543598169, 121.552744741343], "desc": "Magasin emblématique de jouets de créateurs et d'art toys fondé en 2005. Paradise ToyLand importe des collections uniques du Japon, de Hong Kong et d'"}];
+        const list = document.getElementById('l');
+        data.forEach(x => {
+            const m = L.circleMarker(x.coords, { radius: 6, fillColor: color[x.city] || "red", color: "white", weight: 1, fillOpacity: 0.8 }).addTo(map);
+            m.bindPopup("<strong>"+x.name+"</strong><br><small>"+x.desc+"</small>");
+            const div = document.createElement('div'); div.className = 'item';
+            div.innerHTML = "<div>"+x.name+"</div><span class='tag tag-"+x.city.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')+"'>"+x.city+"</span>";
+            div.onclick = () => { map.flyTo(x.coords, 14); m.openPopup(); }; list.appendChild(div);
         });
-
-        initMap();
-
-    </script>
-</body>
-</html>
+        document.getElementById('s').oninput = (e) => {
+            const v = e.target.value.toLowerCase();
+            document.querySelectorAll('.item').forEach(i => { i.style.display = i.innerText.toLowerCase().includes(v) ? 'block' : 'none'; });
+        };
+    </script></body></html>
