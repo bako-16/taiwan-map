@@ -1,0 +1,29 @@
+name: Sync Taiwan Map From Notion
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Toutes les heures
+  workflow_dispatch: # Manuel
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests geopy
+
+      - name: Run sync script
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID: ${{ secrets.DATABASE_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python sync_notion_map.py
