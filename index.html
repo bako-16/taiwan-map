@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Taiwan Live Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <!-- Alternate CDN to bypass cache -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --p: #ff4757; --bg: #0f1116; --g: rgba(255, 255, 255, 0.1); }
@@ -12,10 +13,14 @@
         .item { padding: 8px; border-bottom: 1px solid var(--g); cursor: pointer; }
         .tag { display: inline-block; padding: 2px 5px; font-size: 9px; background: #57606f; border-radius: 4px; margin-top: 3px; }
         .tag-taipei { background: #57606f; } .tag-kaohsiung { background: #ffa502; }
+        .leaflet-popup-content-wrapper { background: #0f1116; color: white; border-radius: 8px; }
+        .leaflet-popup-tip { background: #0f1116; }
+        ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: var(--g); }
     </style></head>
-    <body><div class="overlay"><h1>Taiwan Travel Map</h1><p style="font-size: 10px; color: #aaa;">MAJ : 15:27</p>
+    <body><div class="overlay"><h1>Taiwan Travel Map</h1><p style="font-size: 10px; color: #aaa;">Synchro : 15:34</p>
     <input type="text" class="search" placeholder="Filtrer..." id="s"><div class="list" id="l"></div></div><div id="map"></div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Alternate CDN to bypass cache -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const color = { "Taïpei": "#57606f", "Kaohsiung": "#ffa502", "Alishan": "#2ed573" };
         const map = L.map('map', {attributionControl: false, zoomControl: false}).setView([23.9, 120.9], 8);
